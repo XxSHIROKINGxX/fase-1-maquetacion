@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Roséa Boutique | Contacto</title>
+
+    <link rel="stylesheet" href="css/estilos.css">
+
+    <!-- CSS interno -->
+    <style>
+
+        .formulario-contacto {
+            max-width: 700px;
+            margin: 30px auto;
+            background-color: #ffffff;
+            padding: 35px;
+            border-radius: 20px;
+            border: 1px solid #f0cbd8;
+            box-shadow: 0 5px 20px rgba(120, 70, 90, 0.10);
+        }
+
+        .grupo-formulario {
+            margin-bottom: 20px;
+        }
+
+        .grupo-formulario label {
+            display: block;
+            margin-bottom: 8px;
+            color: #8f4964;
+            font-weight: bold;
+        }
+
+        .grupo-formulario input,
+        .grupo-formulario select,
+        .grupo-formulario textarea {
+            width: 100%;
+            padding: 12px;
+            box-sizing: border-box;
+            border: 1px solid #e5bccc;
+            border-radius: 10px;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 15px;
+            background-color: #fffafb;
+        }
+
+        .grupo-formulario textarea {
+            min-height: 130px;
+            resize: vertical;
+        }
+
+        .grupo-formulario input:focus,
+        .grupo-formulario select:focus,
+        .grupo-formulario textarea:focus {
+            outline: none;
+            border-color: #c87996;
+        }
+
+        .opciones {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .opciones label {
+            font-weight: normal;
+        }
+
+        .aceptacion {
+            margin: 20px 0;
+        }
+
+        .boton-formulario {
+            border: none;
+            cursor: pointer;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 16px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <header>
+
+        <h1>🎀Roséa Boutique🎀</h1>
+
+        <p>
+            Estamos aquí para ayudarte
+        </p>
+
+    </header>
+
+    <nav>
+
+        <a href="index.html">Inicio</a>
+
+        <a href="coleccion.html">Colección</a>
+
+        <a href="contacto.html">Contacto</a>
+
+    </nav>
+
+    <main>
+
+        <section>
+
+            <h2>♡Contáctanos♡</h2>
+
+            <p>
+                ¿Tienes alguna pregunta sobre nuestras prendas?
+                Completa el siguiente formulario.
+            </p>
+
+        </section>
+
+        <section class="formulario-contacto">
+
+            <form>
+
+                <div class="grupo-formulario">
+
+                    <label for="nombre">
+                        Nombre completo:
+                    </label>
+
+                    <input
+                        type="text"
+                        id="nombre"
+                        name="nombre"
+                        placeholder="Escribe tu nombre"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="grupo-formulario">
+
+                    <label for="correo">
+                        Correo electrónico:
+                    </label>
+
+                    <input
+                        type="email"
+                        id="correo"
+                        name="correo"
+                        placeholder="ejemplo@correo.com"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="grupo-formulario">
+
+                    <label for="telefono">
+                        Teléfono:
+                    </label>
+
+                    <input
+                        type="tel"
+                        id="telefono"
+                        name="telefono"
+                        placeholder="809-000-0000"
+                    >
+
+                </div>
+
+
+                <div class="grupo-formulario">
+
+                    <label for="consulta">
+                        Tipo de consulta:
+                    </label>
+
+                    <select id="consulta" name="consulta">
+
+                        <option value="">
+                            Selecciona una opción
+                        </option>
+
+                        <option value="producto">
+                            Información sobre un producto
+                        </option>
+
+                        <option value="tallas">
+                            Consulta sobre tallas
+                        </option>
+
+                        <option value="disponibilidad">
+                            Disponibilidad
+                        </option>
+
+                        <option value="otro">
+                            Otro
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="grupo-formulario">
+
+                    <label>
+                        Talla que utilizas:
+                    </label>
+
+                    <div class="opciones">
+
+                        <label>
+                            <input
+                                type="radio"
+                                name="talla"
+                                value="S"
+                            >
+                            S
+                        </label>
+
+                        <label>
+                            <input
+                                type="radio"
+                                name="talla"
+                                value="M"
+                            >
+                            M
+                        </label>
+
+                        <label>
+                            <input
+                                type="radio"
+                                name="talla"
+                                value="L"
+                            >
+                            L
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+                <div class="grupo-formulario">
+
+                    <label for="mensaje">
+                        Mensaje:
+                    </label>
+
+                    <textarea
+                        id="mensaje"
+                        name="mensaje"
+                        placeholder="Escribe tu mensaje..."
+                    ></textarea>
+
+                </div>
+
+
+                <div class="aceptacion">
+
+                    <label>
+
+                        <input
+                            type="checkbox"
+                            name="aceptacion"
+                            required
+                        >
+
+                        Acepto que Roséa Boutique utilice
+                        estos datos para responder mi consulta.
+
+                    </label>
+
+                </div>
+
+
+                <!-- CSS en línea -->
+                <button
+                    type="submit"
+                    class="boton boton-formulario"
+                    style="letter-spacing: 1px;"
+                >
+                    Enviar consulta 
+                </button>
+
+            </form>
+
+        </section>
+
+    </main>
+
+    <footer>
+
+        <p>
+            © 2026 Roséa Boutique · Hecho con amor 
+        </p>
+
+    </footer>
+
+</body>
+
+</html>

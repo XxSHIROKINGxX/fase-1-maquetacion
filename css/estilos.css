@@ -1,0 +1,204 @@
+/* =========================================
+   ROSÉA BOUTIQUE
+   Estilos principales
+   ========================================= */
+
+/* Selector de etiqueta */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Georgia, "Times New Roman", serif;
+    background-color: #fff7fa;
+    color: #4a3039;
+}
+
+/* Encabezado */
+header {
+    background-color: #f8dce7;
+    text-align: center;
+    padding: 30px 20px;
+    border-bottom: 2px solid #e7b7c9;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 42px;
+    color: #9b526d;
+    letter-spacing: 2px;
+}
+
+header p {
+    margin: 8px 0 0;
+    font-size: 17px;
+    font-style: italic;
+}
+
+/* Navegación */
+nav {
+    background-color: #fff;
+    text-align: center;
+    padding: 15px;
+    box-shadow: 0 2px 8px rgba(120, 70, 90, 0.12);
+}
+
+nav a {
+    text-decoration: none;
+    color: #8f4964;
+    font-weight: bold;
+    margin: 0 15px;
+}
+
+nav a:hover {
+    color: #d77f9e;
+}
+
+/* Contenido principal */
+main {
+    max-width: 1100px;
+    margin: auto;
+    padding: 50px 20px;
+}
+
+/* Sección principal */
+.hero {
+    text-align: center;
+    background-color: #fff;
+    padding: 60px 30px;
+    border-radius: 20px;
+    border: 1px solid #f0cbd8;
+    box-shadow: 0 5px 20px rgba(120, 70, 90, 0.10);
+}
+
+.hero h2 {
+    color: #9b526d;
+    font-size: 35px;
+}
+
+.hero p {
+    font-size: 18px;
+    line-height: 1.7;
+}
+
+/* Botón */
+.boton {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 13px 28px;
+    background-color: #c87996;
+    color: white;
+    text-decoration: none;
+    border-radius: 30px;
+    font-weight: bold;
+}
+
+.boton:hover {
+    background-color: #9b526d;
+}
+
+/* Pie de página */
+footer {
+    background-color: #f8dce7;
+    text-align: center;
+    padding: 25px;
+    margin-top: 40px;
+    color: #6d4351;
+}
+
+/* =========================================
+   COLECCIÓN
+   ========================================= */
+
+.productos {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+    margin-top: 25px;
+}
+
+.producto {
+    background-color: #ffffff;
+    padding: 25px;
+    text-align: center;
+    border-radius: 18px;
+    border: 1px solid #f0cbd8;
+    box-shadow: 0 4px 15px rgba(120, 70, 90, 0.10);
+}
+
+.producto h3 {
+    color: #9b526d;
+    font-size: 22px;
+}
+
+.producto p {
+    line-height: 1.6;
+}
+
+.producto strong {
+    color: #b45f7b;
+    font-size: 18px;
+}
+
+.imagen-producto {
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fcecf2;
+    border-radius: 15px;
+    overflow: hidden;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.imagen-producto img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+    border-radius: 12px;
+}
+
+/* Lista */
+section ul {
+    background-color: #fff;
+    padding: 25px 45px;
+    border-radius: 15px;
+    line-height: 2;
+    border: 1px solid #f0cbd8;
+}
+
+/* Tabla */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: #ffffff;
+}
+
+th {
+    background-color: #c87996;
+    color: white;
+    padding: 15px;
+}
+
+td {
+    padding: 14px;
+    text-align: center;
+    border-bottom: 1px solid #f0d5df;
+}
+
+tr:hover {
+    background-color: #fff1f6;
+}
+
+/* Sección de contacto */
+.llamada {
+    text-align: center;
+    margin-top: 50px;
+    padding: 40px;
+    background-color: #fcecf2;
+    border-radius: 20px;
+}
+

@@ -255,6 +255,17 @@ document.addEventListener("DOMContentLoaded", function () {
 		const totalEl = document.getElementById('total');
 		const formCheckout = document.getElementById('form-checkout');
 
+		function populateCheckoutUserData() {
+			const session = getSession();
+			if (!session || !session.email) return;
+			const user = getCurrentUser();
+			if (!user) return;
+			const nombreCli = document.getElementById('nombre-cli');
+			if (nombreCli && user.nombre) {
+				nombreCli.value = user.nombre;
+			}
+		}
+
 		function aggregateCart() {
 			const map = {};
 			carrito.forEach(function (item) {
@@ -413,6 +424,31 @@ document.addEventListener("DOMContentLoaded", function () {
 				const total = subtotal + envioVal;
 
 				const orderNum = 'R' + Date.now().toString().slice(-8) + Math.floor(Math.random() * 900 + 100);
+				const session = getSession();
+				const order = {
+					id: orderNum,
+					email: session && session.email ? session.email : null,
+					nombreCliente: (nombre + ' ' + apellido).trim(),
+					fecha: new Date().toISOString(),
+					subtotal: subtotal,
+					envio: envioVal,
+					total: total,
+					metodoPago: pago,
+					estado: 'Confirmado',
+					items: items.map(function (it) {
+						return {
+							nombre: it.nombre,
+							precio: it.precio,
+							cantidad: it.cantidad
+						};
+					})
+				};
+
+				if (session && session.email) {
+					const orders = loadOrders();
+					orders.push(order);
+					saveOrders(orders);
+				}
 
 				// limpiar
 				carrito = [];
@@ -432,6 +468,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		}
 
 		// Inicial render
+		populateCheckoutUserData();
 		renderCheckout();
 	}
 
@@ -459,6 +496,29 @@ document.addEventListener("DOMContentLoaded", function () {
 		return JSON.parse(localStorage.getItem('roseaSession') || 'null');
 	}
 
+	function loadOrders() {
+		return JSON.parse(localStorage.getItem('roseaOrders') || '[]');
+	}
+
+	function saveOrders(orders) {
+		localStorage.setItem('roseaOrders', JSON.stringify(orders));
+	}
+
+	function getCurrentUser() {
+		const session = getSession();
+		if (!session || !session.email) return null;
+		const users = loadUsers();
+		return users.find(function (u) { return u.email === session.email; }) || {
+			nombre: session.email.split('@')[0],
+			email: session.email
+		};
+	}
+
+	function getUserOrders(email) {
+		if (!email) return [];
+		return loadOrders().filter(function (order) { return order.email === email; });
+	}
+
 	function updateUserUI() {
 		const userArea = document.getElementById('user-area');
 		if (!userArea) return;
@@ -466,7 +526,11 @@ document.addEventListener("DOMContentLoaded", function () {
 		if (session && session.email) {
 			const users = loadUsers();
 			const me = users.find(u=>u.email===session.email);
-			userArea.innerHTML = `<span style="margin-right:8px;">Hola, ${me ? me.nombre : session.email}</span><button id="logout-btn" class="boton">Cerrar sesión</button>`;
+			userArea.innerHTML = `
+				<span style="margin-right:8px;">Hola, ${me ? me.nombre : session.email}</span>
+				<a class="boton" href="perfil.html">Perfil</a>
+				<button id="logout-btn" class="boton">Cerrar sesión</button>
+			`;
 			const btn = document.getElementById('logout-btn');
 			if (btn) btn.addEventListener('click', function(){ clearSession(); updateUserUI(); });
 		} else {
@@ -482,8 +546,13 @@ document.addEventListener("DOMContentLoaded", function () {
 			const nombre = document.getElementById('reg-nombre').value.trim();
 			const email = document.getElementById('reg-email').value.trim();
 			const password = document.getElementById('reg-password').value;
-			if (!nombre || !email || !password || password.length < 4) {
+			const confirmarPassword = document.getElementById('reg-confirm-password').value;
+			if (!nombre || !email || !password || !confirmarPassword || password.length < 4) {
 				alert('Completa los campos. La contraseña debe tener al menos 4 caracteres.');
+				return;
+			}
+			if (password !== confirmarPassword) {
+				alert('Las contraseñas no coinciden. Verifica que sean iguales.');
 				return;
 			}
 			const users = loadUsers();
@@ -512,6 +581,173 @@ document.addEventListener("DOMContentLoaded", function () {
 			alert('Sesión iniciada');
 			window.location.href = 'index.html';
 		});
+	}
+
+	// perfil y historial de pedidos
+	const perfilApp = document.getElementById('perfil-app');
+	if (perfilApp) {
+		function renderPerfil() {
+			const session = getSession();
+			const user = getCurrentUser();
+			if (!session || !user) {
+				perfilApp.innerHTML = `
+					<div class="perfil-vacio">
+						<h2>Mi perfil</h2>
+						<p>Inicia sesión para ver tu historial de compras.</p>
+						<a class="boton" href="login.html">Iniciar sesión</a>
+					</div>
+				`;
+				return;
+			}
+
+			const orders = getUserOrders(session.email).slice().reverse();
+			const userName = user.nombre || user.email.split('@')[0];
+
+			perfilApp.innerHTML = `
+				<div class="perfil-header">
+					<h2>Mi perfil</h2>
+					<p>Bienvenido/a, ${userName}</p>
+				</div>
+				<div class="perfil-grid">
+					<div class="perfil-card">
+						<h3>Datos personales</h3>
+						<p><strong>Nombre:</strong> ${user.nombre || userName}</p>
+						<p><strong>Correo:</strong> ${user.email}</p>
+						<button id="logout-perfil" class="boton">Cerrar sesión</button>
+						<button id="delete-perfil" class="boton" style="background-color:#b45f7b; margin-left:8px;">Eliminar perfil</button>
+					</div>
+					<div class="perfil-card">
+						<h3>Editar perfil</h3>
+						<form id="form-editar-perfil">
+							<div class="grupo-formulario">
+								<label for="perfil-nombre">Nombre</label>
+								<input id="perfil-nombre" type="text" value="${(user.nombre || userName).replace(/"/g, '&quot;')}" required>
+							</div>
+							<div class="grupo-formulario">
+								<label for="perfil-email">Correo electrónico</label>
+								<input id="perfil-email" type="email" value="${(user.email || '').replace(/"/g, '&quot;')}" required>
+							</div>
+							<div class="grupo-formulario">
+								<label for="perfil-password">Nueva contraseña (opcional)</label>
+								<input id="perfil-password" type="password" placeholder="Deja en blanco para no cambiarla">
+							</div>
+							<div class="grupo-formulario">
+								<label for="perfil-confirm-password">Confirmar nueva contraseña</label>
+								<input id="perfil-confirm-password" type="password" placeholder="Repite la nueva contraseña">
+							</div>
+							<button type="submit" class="boton">Guardar cambios</button>
+						</form>
+					</div>
+					<div class="perfil-card">
+						<h3>Historial de pedidos</h3>
+						${orders.length ? orders.map(function (order) {
+							return `
+								<article class="pedido-card">
+									<div class="pedido-header">
+										<span class="pedido-id">${order.id}</span>
+										<span class="pedido-estado">${order.estado}</span>
+									</div>
+									<div class="pedido-meta">
+										<span>${new Date(order.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}</span>
+										<span>Total: RD$ ${Number(order.total).toLocaleString()}</span>
+									</div>
+									<div class="pedido-items">
+										${order.items.map(function(item){
+											return `<div class="pedido-item">${item.cantidad}× ${item.nombre} — RD$ ${(item.precio * item.cantidad).toLocaleString()}</div>`;
+										}).join('')}
+									</div>
+								</article>
+							`;
+						}).join('') : '<p class="pedido-vacio">Aún no tienes pedidos registrados.</p>'}
+					</div>
+				</div>
+			`;
+
+			const logoutPerfilBtn = document.getElementById('logout-perfil');
+			if (logoutPerfilBtn) {
+				logoutPerfilBtn.addEventListener('click', function () {
+					clearSession();
+					updateUserUI();
+					renderPerfil();
+				});
+			}
+
+			const deletePerfilBtn = document.getElementById('delete-perfil');
+			if (deletePerfilBtn) {
+				deletePerfilBtn.addEventListener('click', function () {
+					const sessionActual = getSession();
+					if (!sessionActual || !sessionActual.email) return;
+					const confirmar = window.confirm('¿Seguro que quieres eliminar tu perfil? Esta acción borrará tu cuenta y todos tus pedidos.');
+					if (!confirmar) return;
+
+					const users = loadUsers();
+					const orders = loadOrders();
+					const usuariosActualizados = users.filter(function (u) { return u.email !== sessionActual.email; });
+					saveUsers(usuariosActualizados);
+					saveOrders(orders.filter(function (order) { return order.email !== sessionActual.email; }));
+					clearSession();
+					updateUserUI();
+					alert('Perfil eliminado correctamente.');
+					window.location.href = 'index.html';
+				});
+			}
+
+			const formEditarPerfil = document.getElementById('form-editar-perfil');
+			if (formEditarPerfil) {
+				formEditarPerfil.addEventListener('submit', function (event) {
+					event.preventDefault();
+					const nuevoNombre = document.getElementById('perfil-nombre').value.trim();
+					const nuevoEmail = document.getElementById('perfil-email').value.trim();
+					const nuevaPassword = document.getElementById('perfil-password').value;
+					const confirmarPassword = document.getElementById('perfil-confirm-password').value;
+
+					if (!nuevoNombre || !nuevoEmail) {
+						alert('Nombre y correo son obligatorios.');
+						return;
+					}
+
+					if (nuevaPassword || confirmarPassword) {
+						if (nuevaPassword.length < 4) {
+							alert('La nueva contraseña debe tener al menos 4 caracteres.');
+							return;
+						}
+						if (nuevaPassword !== confirmarPassword) {
+							alert('La nueva contraseña y su confirmación no coinciden.');
+							return;
+						}
+					}
+
+					const users = loadUsers();
+					const indexActual = users.findIndex(function (u) { return u.email === session.email; });
+					if (indexActual === -1) {
+						alert('No se encontró tu usuario activo.');
+						return;
+					}
+
+					const emailDuplicado = users.find(function (u, idx) {
+						return idx !== indexActual && u.email.toLowerCase() === nuevoEmail.toLowerCase();
+					});
+					if (emailDuplicado) {
+						alert('Ya existe otra cuenta con ese correo.');
+						return;
+					}
+
+					users[indexActual].nombre = nuevoNombre;
+					users[indexActual].email = nuevoEmail;
+					if (nuevaPassword) {
+						users[indexActual].password = nuevaPassword;
+					}
+
+					saveUsers(users);
+					setSession(nuevoEmail);
+					updateUserUI();
+					renderPerfil();
+					alert('Perfil actualizado correctamente.');
+				});
+			}
+		}
+
+		renderPerfil();
 	}
 
 	// inicializar UI de usuario al cargar

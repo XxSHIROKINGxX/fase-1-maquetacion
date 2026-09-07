@@ -388,3 +388,80 @@ tr:hover {
     border: 1px solid #f0cbd8;
 }
 
+.perfil-header {
+    margin-bottom: 20px;
+}
+
+.perfil-header h2 {
+    color: #9b526d;
+    margin-bottom: 0;
+}
+
+.perfil-grid {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 24px;
+}
+
+.perfil-card {
+    background: #fff;
+    border: 1px solid #f0cbd8;
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 5px 18px rgba(120, 70, 90, 0.08);
+}
+
+.perfil-card h3 {
+    margin-top: 0;
+    color: #9b526d;
+}
+
+.pedido-card {
+    border: 1px solid #f5d9e5;
+    background: #fff9fb;
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 14px;
+}
+
+.pedido-header,
+.pedido-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.pedido-id {
+    font-weight: bold;
+    color: #8f4964;
+}
+
+.pedido-estado {
+    background: #f8dce7;
+    color: #8f4964;
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.pedido-items {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 14px;
+}
+
+.pedido-vacio,
+.perfil-vacio {
+    color: #6d4351;
+}
+
+@media (max-width: 760px) {
+    .perfil-grid {
+        grid-template-columns: 1fr;
+    }
+}
+

@@ -28,6 +28,13 @@
 
     </header>
 
+    <div class="header-actions">
+        <a href="carrito.html" class="boton">🛒 Carrito <span id="contador-carrito">0</span></a>
+        <a href="checkout.html" class="boton">💳 Checkout</a>
+        <button id="boton-carrito" class="boton" aria-label="Abrir carrito">Abrir</button>
+        <div id="user-area"></div>
+    </div>
+
     <nav>
 
         <a href="index.html">Inicio</a>
@@ -56,9 +63,30 @@
 
             <h2>Prendas destacadas</h2>
 
+            <!-- Controles de búsqueda y filtros -->
+            <div class="filtros">
+                <input id="buscar" type="search" placeholder="Buscar productos...">
+
+                <select id="filtro-categoria">
+                    <option value="">Todas las categorías</option>
+                    <option value="vestido">Vestidos</option>
+                    <option value="blusa">Blusas</option>
+                    <option value="falda">Faldas</option>
+                    <option value="top">Tops</option>
+                </select>
+
+                <select id="orden-precio">
+                    <option value="">Ordenar por precio</option>
+                    <option value="asc">Precio: menor → mayor</option>
+                    <option value="desc">Precio: mayor → menor</option>
+                </select>
+
+                <label class="filtro-disponible"><input id="filtro-disponible" type="checkbox"> Solo disponibles</label>
+            </div>
+
             <div class="productos">
 
-                <article class="producto">
+                <article class="producto" data-categoria="vestido" data-precio="2850" data-disponible="true">
 
                     <div class="imagen-producto">
                         <img src="img/vestido-rose.png" alt="Vestido Rosé">
@@ -73,10 +101,16 @@
 
                     <strong>RD$ 2,850</strong>
 
+                    <button class="boton agregar-carrito"
+                            data-producto="Vestido Rosé"
+                            data-precio="2850">
+                        Agregar al carrito
+                    </button>
+
                 </article>
 
 
-                <article class="producto">
+                <article class="producto" data-categoria="blusa" data-precio="1750" data-disponible="true">
 
                     <div class="imagen-producto">
                         <img src="img/blusa-fleur.PNG" alt="Blusa Fleur">
@@ -91,10 +125,16 @@
 
                     <strong>RD$ 1,750</strong>
 
+                    <button class="boton agregar-carrito"
+                            data-producto="Blusa Fleur"
+                            data-precio="1750">
+                        Agregar al carrito
+                    </button>
+
                 </article>
 
 
-                <article class="producto">
+                <article class="producto" data-categoria="falda" data-precio="2100" data-disponible="true">
 
                     <div class="imagen-producto">
                         <img src="img/falda-amour.PNG" alt="Falda Amour">
@@ -108,6 +148,12 @@
                     </p>
 
                     <strong>RD$ 2,100</strong>
+
+                    <button class="boton agregar-carrito"
+                            data-producto="Falda Amour"
+                            data-precio="2100">
+                        Agregar al carrito
+                    </button>
 
                 </article>
 
@@ -213,6 +259,21 @@
         </p>
 
     </footer>
+    <!-- Modal del carrito -->
+    <div id="modal-carrito" class="modal" aria-hidden="true">
+        <div class="modal-contenido">
+            <button id="cerrar-modal" class="cerrar">&times;</button>
+            <h3>🛍️ Carrito <span id="contador-carrito-header">(0)</span></h3>
+            <div id="carrito-items"></div>
+            <div class="carrito-total">
+                <strong>Total:</strong>
+                <span id="total-carrito">RD$ 0</span>
+            </div>
+            <button id="vaciar-carrito" class="boton">Vaciar carrito</button>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
 
 </body>
 

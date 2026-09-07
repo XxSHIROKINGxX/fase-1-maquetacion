@@ -20,6 +20,10 @@ header {
     border-bottom: 2px solid #e7b7c9;
 }
 
+header {
+    position: relative;
+}
+
 header h1 {
     margin: 0;
     font-size: 42px;
@@ -93,6 +97,49 @@ main {
 
 .boton:hover {
     background-color: #9b526d;
+}
+
+/* Header actions (carrito / checkout) */
+.header-actions {
+    position: absolute;
+    top: 18px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.header-actions .boton {
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+}
+
+/* Filtros */
+.filtros {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin: 18px 0;
+}
+
+.filtros input[type="search"] {
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #f0cbd8;
+    background: #fffafb;
+}
+
+.filtros select {
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #f0cbd8;
+    background: #fff;
+}
+
+.filtro-disponible {
+    font-size: 14px;
+    color: #6d4351;
 }
 
 /* Pie de página */
@@ -200,5 +247,143 @@ tr:hover {
     padding: 40px;
     background-color: #fcecf2;
     border-radius: 20px;
+}
+
+/* Carrito (modal) */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.35);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.modal[aria-hidden="false"] {
+    display: flex;
+}
+
+.modal-contenido {
+    background: #fffafb;
+    padding: 25px;
+    border-radius: 14px;
+    width: 90%;
+    max-width: 480px;
+    box-shadow: 0 8px 30px rgba(120,70,90,0.25);
+    border: 1px solid #f0cbd8;
+    color: #4a3039;
+}
+
+.modal-contenido h3 {
+    margin-top: 0;
+    color: #9b526d;
+}
+
+.cerrar {
+    background: transparent;
+    border: none;
+    font-size: 26px;
+    float: right;
+    cursor: pointer;
+    color: #9b526d;
+}
+
+#carrito-items {
+    margin-top: 12px;
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+.item-carrito {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px dashed #f0d5df;
+}
+
+.carrito-total {
+    margin-top: 14px;
+    text-align: right;
+    font-size: 16px;
+}
+
+#vaciar-carrito {
+    margin-top: 12px;
+    background-color: #f2a0bd;
+}
+
+#vaciar-carrito:hover {
+    background-color: #d77f9e;
+}
+
+/* Checkout */
+.checkout {
+    max-width: 1100px;
+    margin: 30px auto;
+}
+
+.checkout-grid {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 30px;
+}
+
+.resumen {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #f0cbd8;
+}
+
+.resumen h3 {
+    margin-top: 0;
+    color: #9b526d;
+}
+
+.resumen .item-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px dashed #f0d5df;
+}
+
+.resumen .item-row .controles {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.form-checkout {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #f0cbd8;
+}
+
+.form-checkout h3 {
+    margin-top: 0;
+    color: #9b526d;
+}
+
+.form-checkout .grupo-formulario {
+    margin-bottom: 12px;
+}
+
+.form-checkout .error {
+    color: #b45f7b;
+    font-size: 13px;
+    height: 16px;
+}
+
+.confirmacion {
+    text-align: center;
+    padding: 30px;
+    background: #fffaf6;
+    border-radius: 12px;
+    border: 1px solid #f0cbd8;
 }
 

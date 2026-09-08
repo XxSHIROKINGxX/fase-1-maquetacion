@@ -264,6 +264,11 @@ document.addEventListener("DOMContentLoaded", function () {
 			if (nombreCli && user.nombre) {
 				nombreCli.value = user.nombre;
 			}
+
+			const formCheckoutTitle = document.querySelector('#checkout-app h2');
+			if (formCheckoutTitle) {
+				formCheckoutTitle.textContent = '🛍️ Finalizar compra como ' + user.nombre;
+			}
 		}
 
 		function aggregateCart() {

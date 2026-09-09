@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Roséa Boutique | Checkout</title>
+
+    <link rel="stylesheet" href="css/estilos.css">
+
+</head>
+
+<body>
+
+    <header>
+
+        <h1>🎀Roséa Boutique🎀</h1>
+
+        <p>
+            Finaliza tu compra
+        </p>
+
+    </header>
+
+    <nav>
+
+        <a href="index.html">Inicio</a>
+
+        <a href="coleccion.html">Colección</a>
+
+        <a href="contacto.html">Contacto</a>
+
+    </nav>
+
+    <main>
+
+        <section class="checkout" id="checkout-app">
+
+            <h2>🛍️ Finalizar compra</h2>
+
+            <div class="checkout-grid">
+
+                <div class="resumen">
+                    <h3>Resumen del pedido</h3>
+
+                    <div id="resumen-items">
+                        <!-- Items renderizados por JS -->
+                    </div>
+
+                    <div class="resumen-totales">
+                        <div>Subtotal: <span id="subtotal">RD$ 0</span></div>
+                        <div>
+                            Envío:
+                            <select id="envio">
+                                <option value="0">Envío estándar — RD$ 0</option>
+                                <option value="200">Envío rápido — RD$ 200</option>
+                            </select>
+                        </div>
+                        <div><strong>Total: <span id="total">RD$ 0</span></strong></div>
+                    </div>
+
+                </div>
+
+                <div class="form-checkout">
+                    <h3>Datos del cliente</h3>
+
+                    <div id="checkout-user-info" style="display:none;"></div>
+
+                    <form id="form-checkout">
+
+                        <div class="grupo-formulario">
+                            <label for="nombre-cli">Nombre *</label>
+                            <input type="text" id="nombre-cli" name="nombre-cli" required>
+                            <div class="error" id="error-nombre" aria-hidden="true"></div>
+                        </div>
+
+                        <div class="grupo-formulario">
+                            <label for="apellido-cli">Apellido *</label>
+                            <input type="text" id="apellido-cli" name="apellido-cli" required>
+                            <div class="error" id="error-apellido" aria-hidden="true"></div>
+                        </div>
+
+                        <div class="grupo-formulario">
+                            <label for="telefono-cli">Teléfono *</label>
+                            <input type="tel" id="telefono-cli" name="telefono-cli" required>
+                            <div class="error" id="error-telefono" aria-hidden="true"></div>
+                        </div>
+
+                        <div class="grupo-formulario">
+                            <label for="direccion-cli">Dirección *</label>
+                            <input type="text" id="direccion-cli" name="direccion-cli" required>
+                            <div class="error" id="error-direccion" aria-hidden="true"></div>
+                        </div>
+
+                        <div class="grupo-formulario">
+                            <label for="ciudad-cli">Ciudad *</label>
+                            <input type="text" id="ciudad-cli" name="ciudad-cli" required>
+                            <div class="error" id="error-ciudad" aria-hidden="true"></div>
+                        </div>
+
+                        <div class="grupo-formulario">
+                            <label for="pago-cli">Método de pago *</label>
+                            <select id="pago-cli" required>
+                                <option value="">Selecciona</option>
+                                <option value="tarjeta">Tarjeta de crédito</option>
+                                <option value="efectivo">Efectivo / Contra entrega</option>
+                                <option value="transferencia">Transferencia</option>
+                            </select>
+                            <div class="error" id="error-pago" aria-hidden="true"></div>
+                        </div>
+
+                        <button type="submit" class="boton">Realizar pedido</button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer>
+
+        <p>
+            © 2026 Roséa Boutique · Hecho con amor
+        </p>
+
+    </footer>
+
+    <script src="js/script.js"></script>
+
+</body>
+
+</html>

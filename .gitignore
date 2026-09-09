@@ -1,0 +1,16 @@
+/node_modules/
+*.log
+.DS_Store
+.vscode/
+Thumbs.db
+/.env
+
+# Ignore OS files
+*.tmp
+
+# Ignore build outputs (none by default)
+/dist/
+
+# Ignore local IDE files
+*.suo
+*.ntvs*

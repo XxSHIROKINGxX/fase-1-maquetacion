@@ -416,6 +416,118 @@ tr:hover {
     color: #9b526d;
 }
 
+.admin-card {
+    margin-top: 24px;
+}
+
+.admin-subtitle {
+    margin-top: -4px;
+    color: #6d4351;
+}
+
+.admin-table-wrap {
+    overflow-x: auto;
+    margin-top: 16px;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #f0d5df;
+    text-align: left;
+}
+
+.admin-table th {
+    background: #f8dce7;
+    color: #8f4964;
+}
+
+.badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.badge-admin {
+    background: #f7d6e3;
+    color: #8f4964;
+}
+
+.badge-user {
+    background: #e3f2f0;
+    color: #346d66;
+}
+
+.badge-active {
+    background: #dff7e8;
+    color: #2d7d4d;
+}
+
+.boton-peligro {
+    background: #b45f7b !important;
+    color: #fff !important;
+    margin-top: 0 !important;
+    padding: 10px 16px !important;
+    border: none !important;
+    cursor: pointer;
+}
+
+.boton-peligro:hover {
+    background: #9b526d !important;
+}
+
+.boton-exito {
+    background: #4c9b7d !important;
+    color: #fff !important;
+    margin-top: 0 !important;
+    padding: 10px 16px !important;
+    border: none !important;
+    cursor: pointer;
+}
+
+.boton-exito:hover {
+    background: #387d66 !important;
+}
+
+.admin-deleted-section {
+    margin-top: 24px;
+}
+
+.admin-deleted-section h4 {
+    color: #9b526d;
+    margin-bottom: 12px;
+}
+
+.admin-deleted-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.admin-deleted-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    background: #fff9fb;
+    border: 1px solid #f0d5df;
+    border-radius: 10px;
+    padding: 10px 12px;
+}
+
+.text-muted {
+    color: #7a5967;
+    font-size: 14px;
+}
+
 .pedido-card {
     border: 1px solid #f5d9e5;
     background: #fff9fb;

@@ -481,16 +481,56 @@ document.addEventListener("DOMContentLoaded", function () {
 	// AUTENTICACIÓN (registro / login) - localStorage
 	// ==========================================
 
+	const ADMIN_EMAIL = 'admin@rosea.com';
+	const ADMIN_PASSWORD = 'admin1234';
+
+	function normalizeEmail(value) {
+		return String(value || '').trim().toLowerCase();
+	}
+
+	function normalizeUser(user) {
+		if (!user || typeof user !== 'object') return null;
+		const email = normalizeEmail(user.email);
+		if (!email) return null;
+		return {
+			nombre: String(user.nombre || email.split('@')[0] || 'Usuario').trim(),
+			email: email,
+			password: String(user.password || ''),
+			role: user.role === 'admin' ? 'admin' : 'user',
+			deleted: Boolean(user.deleted),
+			deletedAt: user.deletedAt || null
+		};
+	}
+
+	function normalizeUsers(users) {
+		if (!Array.isArray(users)) return [];
+		return users.map(normalizeUser).filter(Boolean);
+	}
+
 	function loadUsers() {
-		return JSON.parse(localStorage.getItem('roseaUsers') || '[]');
+		const storedUsers = JSON.parse(localStorage.getItem('roseaUsers') || '[]');
+		const users = normalizeUsers(storedUsers);
+		const hasAdmin = users.some(function (u) { return u.email === ADMIN_EMAIL; });
+		if (!hasAdmin) {
+			users.push({
+				nombre: 'Administrador',
+				email: ADMIN_EMAIL,
+				password: ADMIN_PASSWORD,
+				role: 'admin',
+				deleted: false,
+				deletedAt: null
+			});
+		}
+		saveUsers(users);
+		return users;
 	}
 
 	function saveUsers(users) {
-		localStorage.setItem('roseaUsers', JSON.stringify(users));
+		localStorage.setItem('roseaUsers', JSON.stringify(normalizeUsers(users)));
 	}
 
 	function setSession(email) {
-		localStorage.setItem('roseaSession', JSON.stringify({ email: email }));
+		localStorage.setItem('roseaSession', JSON.stringify({ email: normalizeEmail(email) }));
 	}
 
 	function clearSession() {
@@ -513,15 +553,25 @@ document.addEventListener("DOMContentLoaded", function () {
 		const session = getSession();
 		if (!session || !session.email) return null;
 		const users = loadUsers();
-		return users.find(function (u) { return u.email === session.email; }) || {
-			nombre: session.email.split('@')[0],
-			email: session.email
-		};
+		const currentUser = users.find(function (u) { return u.email === normalizeEmail(session.email); });
+		if (!currentUser || currentUser.deleted) {
+			clearSession();
+			return null;
+		}
+		return currentUser;
 	}
 
 	function getUserOrders(email) {
 		if (!email) return [];
-		return loadOrders().filter(function (order) { return order.email === email; });
+		return loadOrders().filter(function (order) { return order.email === normalizeEmail(email); });
+	}
+
+	function getActiveUsers() {
+		return loadUsers().filter(function (user) { return !user.deleted; });
+	}
+
+	function getDeletedUsers() {
+		return loadUsers().filter(function (user) { return user.deleted; });
 	}
 
 	function updateUserUI() {
@@ -530,9 +580,14 @@ document.addEventListener("DOMContentLoaded", function () {
 		const session = getSession();
 		if (session && session.email) {
 			const users = loadUsers();
-			const me = users.find(u=>u.email===session.email);
+			const me = users.find(u => u.email === normalizeEmail(session.email));
+			if (!me || me.deleted) {
+				clearSession();
+				updateUserUI();
+				return;
+			}
 			userArea.innerHTML = `
-				<span style="margin-right:8px;">Hola, ${me ? me.nombre : session.email}</span>
+				<span style="margin-right:8px;">Hola, ${me.nombre}</span>
 				<a class="boton" href="perfil.html">Perfil</a>
 				<button id="logout-btn" class="boton">Cerrar sesión</button>
 			`;
@@ -549,7 +604,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		formRegistro.addEventListener('submit', function(e){
 			e.preventDefault();
 			const nombre = document.getElementById('reg-nombre').value.trim();
-			const email = document.getElementById('reg-email').value.trim();
+			const email = normalizeEmail(document.getElementById('reg-email').value);
 			const password = document.getElementById('reg-password').value;
 			const confirmarPassword = document.getElementById('reg-confirm-password').value;
 			if (!nombre || !email || !password || !confirmarPassword || password.length < 4) {
@@ -561,8 +616,18 @@ document.addEventListener("DOMContentLoaded", function () {
 				return;
 			}
 			const users = loadUsers();
-			if (users.find(u=>u.email===email)) { alert('Ya existe una cuenta con ese correo.'); return; }
-			users.push({ nombre: nombre, email: email, password: password });
+			if (users.some(function (u) { return u.email === email; })) {
+				alert('Ya existe una cuenta con ese correo.');
+				return;
+			}
+			users.push({
+				nombre: nombre,
+				email: email,
+				password: password,
+				role: 'user',
+				deleted: false,
+				deletedAt: null
+			});
 			saveUsers(users);
 			setSession(email);
 			updateUserUI();
@@ -576,11 +641,14 @@ document.addEventListener("DOMContentLoaded", function () {
 	if (formLogin) {
 		formLogin.addEventListener('submit', function(e){
 			e.preventDefault();
-			const email = document.getElementById('login-email').value.trim();
+			const email = normalizeEmail(document.getElementById('login-email').value);
 			const password = document.getElementById('login-password').value;
 			const users = loadUsers();
-			const me = users.find(u=>u.email===email && u.password===password);
-			if (!me) { alert('Credenciales inválidas'); return; }
+			const me = users.find(function (u) { return u.email === email && u.password === password; });
+			if (!me || me.deleted) {
+				alert('Credenciales inválidas');
+				return;
+			}
 			setSession(email);
 			updateUserUI();
 			alert('Sesión iniciada');
@@ -591,6 +659,60 @@ document.addEventListener("DOMContentLoaded", function () {
 	// perfil y historial de pedidos
 	const perfilApp = document.getElementById('perfil-app');
 	if (perfilApp) {
+		function renderAdminUsersPanel() {
+			const users = loadUsers();
+			const activeUsers = users.filter(function (user) { return !user.deleted; });
+			const deletedUsers = users.filter(function (user) { return user.deleted; });
+
+			return `
+				<div class="perfil-card admin-card">
+					<h3>Administración de cuentas</h3>
+					<p class="admin-subtitle">Total de cuentas: ${users.length}</p>
+					<div class="admin-table-wrap">
+						<table class="admin-table">
+							<thead>
+								<tr>
+									<th>Nombre</th>
+									<th>Correo</th>
+									<th>Rol</th>
+									<th>Estado</th>
+									<th>Acción</th>
+								</tr>
+							</thead>
+							<tbody>
+								${activeUsers.length ? activeUsers.map(function (user) {
+									return `
+										<tr>
+											<td>${user.nombre}</td>
+											<td>${user.email}</td>
+											<td><span class="badge ${user.role === 'admin' ? 'badge-admin' : 'badge-user'}">${user.role === 'admin' ? 'Admin' : 'Usuario'}</span></td>
+											<td><span class="badge badge-active">Activa</span></td>
+											<td>${user.role === 'admin' ? '<span class="text-muted">Protegida</span>' : '<button class="boton boton-peligro" data-user-action="delete" data-user-email="' + user.email + '">Eliminar</button>'}</td>
+										</tr>
+									`;
+								}).join('') : '<tr><td colspan="5">No hay cuentas activas.</td></tr>'}
+							</tbody>
+						</table>
+					</div>
+					${deletedUsers.length ? `
+						<div class="admin-deleted-section">
+							<h4>Cuentas eliminadas</h4>
+							<div class="admin-deleted-list">
+								${deletedUsers.map(function (user) {
+									return `
+										<div class="admin-deleted-item">
+											<span>${user.nombre} · ${user.email}</span>
+											<button class="boton boton-exito" data-user-action="restore" data-user-email="${user.email}">Recuperar</button>
+										</div>
+									`;
+								}).join('')}
+							</div>
+						</div>
+					` : ''}
+				</div>
+			`;
+		}
+
 		function renderPerfil() {
 			const session = getSession();
 			const user = getCurrentUser();
@@ -605,12 +727,14 @@ document.addEventListener("DOMContentLoaded", function () {
 				return;
 			}
 
+			const isAdmin = user.role === 'admin' || user.email === ADMIN_EMAIL;
 			const orders = getUserOrders(session.email).slice().reverse();
 			const userName = user.nombre || user.email.split('@')[0];
+			const adminPanel = isAdmin ? renderAdminUsersPanel() : '';
 
 			perfilApp.innerHTML = `
 				<div class="perfil-header">
-					<h2>Mi perfil</h2>
+					<h2>${isAdmin ? 'Panel de administración' : 'Mi perfil'}</h2>
 					<p>Bienvenido/a, ${userName}</p>
 				</div>
 				<div class="perfil-grid">
@@ -619,53 +743,58 @@ document.addEventListener("DOMContentLoaded", function () {
 						<p><strong>Nombre:</strong> ${user.nombre || userName}</p>
 						<p><strong>Correo:</strong> ${user.email}</p>
 						<button id="logout-perfil" class="boton">Cerrar sesión</button>
-						<button id="delete-perfil" class="boton" style="background-color:#b45f7b; margin-left:8px;">Eliminar perfil</button>
+						${!isAdmin ? '<button id="delete-perfil" class="boton boton-peligro" style="margin-left:8px;">Eliminar perfil</button>' : ''}
 					</div>
-					<div class="perfil-card">
-						<h3>Editar perfil</h3>
-						<form id="form-editar-perfil">
-							<div class="grupo-formulario">
-								<label for="perfil-nombre">Nombre</label>
-								<input id="perfil-nombre" type="text" value="${(user.nombre || userName).replace(/"/g, '&quot;')}" required>
-							</div>
-							<div class="grupo-formulario">
-								<label for="perfil-email">Correo electrónico</label>
-								<input id="perfil-email" type="email" value="${(user.email || '').replace(/"/g, '&quot;')}" required>
-							</div>
-							<div class="grupo-formulario">
-								<label for="perfil-password">Nueva contraseña (opcional)</label>
-								<input id="perfil-password" type="password" placeholder="Deja en blanco para no cambiarla">
-							</div>
-							<div class="grupo-formulario">
-								<label for="perfil-confirm-password">Confirmar nueva contraseña</label>
-								<input id="perfil-confirm-password" type="password" placeholder="Repite la nueva contraseña">
-							</div>
-							<button type="submit" class="boton">Guardar cambios</button>
-						</form>
-					</div>
-					<div class="perfil-card">
-						<h3>Historial de pedidos</h3>
-						${orders.length ? orders.map(function (order) {
-							return `
-								<article class="pedido-card">
-									<div class="pedido-header">
-										<span class="pedido-id">${order.id}</span>
-										<span class="pedido-estado">${order.estado}</span>
-									</div>
-									<div class="pedido-meta">
-										<span>${new Date(order.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}</span>
-										<span>Total: RD$ ${Number(order.total).toLocaleString()}</span>
-									</div>
-									<div class="pedido-items">
-										${order.items.map(function(item){
-											return `<div class="pedido-item">${item.cantidad}× ${item.nombre} — RD$ ${(item.precio * item.cantidad).toLocaleString()}</div>`;
-										}).join('')}
-									</div>
-								</article>
-							`;
-						}).join('') : '<p class="pedido-vacio">Aún no tienes pedidos registrados.</p>'}
-					</div>
+					${!isAdmin ? `
+						<div class="perfil-card">
+							<h3>Editar perfil</h3>
+							<form id="form-editar-perfil">
+								<div class="grupo-formulario">
+									<label for="perfil-nombre">Nombre</label>
+									<input id="perfil-nombre" type="text" value="${(user.nombre || userName).replace(/"/g, '&quot;')}" required>
+								</div>
+								<div class="grupo-formulario">
+									<label for="perfil-email">Correo electrónico</label>
+									<input id="perfil-email" type="email" value="${(user.email || '').replace(/"/g, '&quot;')}" required>
+								</div>
+								<div class="grupo-formulario">
+									<label for="perfil-password">Nueva contraseña (opcional)</label>
+									<input id="perfil-password" type="password" placeholder="Deja en blanco para no cambiarla">
+								</div>
+								<div class="grupo-formulario">
+									<label for="perfil-confirm-password">Confirmar nueva contraseña</label>
+									<input id="perfil-confirm-password" type="password" placeholder="Repite la nueva contraseña">
+								</div>
+								<button type="submit" class="boton">Guardar cambios</button>
+							</form>
+						</div>
+					` : ''}
+					${!isAdmin ? `
+						<div class="perfil-card">
+							<h3>Historial de pedidos</h3>
+							${orders.length ? orders.map(function (order) {
+								return `
+									<article class="pedido-card">
+										<div class="pedido-header">
+											<span class="pedido-id">${order.id}</span>
+											<span class="pedido-estado">${order.estado}</span>
+										</div>
+										<div class="pedido-meta">
+											<span>${new Date(order.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}</span>
+											<span>Total: RD$ ${Number(order.total).toLocaleString()}</span>
+										</div>
+										<div class="pedido-items">
+											${order.items.map(function(item){
+												return `<div class="pedido-item">${item.cantidad}× ${item.nombre} — RD$ ${(item.precio * item.cantidad).toLocaleString()}</div>`;
+											}).join('')}
+										</div>
+									</article>
+								`;
+							}).join('') : '<p class="pedido-vacio">Aún no tienes pedidos registrados.</p>'}
+						</div>
+					` : ''}
 				</div>
+				${adminPanel}
 			`;
 
 			const logoutPerfilBtn = document.getElementById('logout-perfil');
@@ -682,14 +811,16 @@ document.addEventListener("DOMContentLoaded", function () {
 				deletePerfilBtn.addEventListener('click', function () {
 					const sessionActual = getSession();
 					if (!sessionActual || !sessionActual.email) return;
-					const confirmar = window.confirm('¿Seguro que quieres eliminar tu perfil? Esta acción borrará tu cuenta y todos tus pedidos.');
+					const confirmar = window.confirm('¿Seguro que quieres eliminar tu perfil? Esta acción lo marcará como inactivo y podrás recuperarlo más adelante.');
 					if (!confirmar) return;
 
 					const users = loadUsers();
-					const orders = loadOrders();
-					const usuariosActualizados = users.filter(function (u) { return u.email !== sessionActual.email; });
-					saveUsers(usuariosActualizados);
-					saveOrders(orders.filter(function (order) { return order.email !== sessionActual.email; }));
+					const indexActual = users.findIndex(function (u) { return u.email === normalizeEmail(sessionActual.email); });
+					if (indexActual !== -1) {
+						users[indexActual].deleted = true;
+						users[indexActual].deletedAt = new Date().toISOString();
+						saveUsers(users);
+					}
 					clearSession();
 					updateUserUI();
 					alert('Perfil eliminado correctamente.');
@@ -702,7 +833,7 @@ document.addEventListener("DOMContentLoaded", function () {
 				formEditarPerfil.addEventListener('submit', function (event) {
 					event.preventDefault();
 					const nuevoNombre = document.getElementById('perfil-nombre').value.trim();
-					const nuevoEmail = document.getElementById('perfil-email').value.trim();
+					const nuevoEmail = normalizeEmail(document.getElementById('perfil-email').value);
 					const nuevaPassword = document.getElementById('perfil-password').value;
 					const confirmarPassword = document.getElementById('perfil-confirm-password').value;
 
@@ -750,6 +881,42 @@ document.addEventListener("DOMContentLoaded", function () {
 					alert('Perfil actualizado correctamente.');
 				});
 			}
+
+			const adminButtons = document.querySelectorAll('[data-user-action]');
+			adminButtons.forEach(function (button) {
+				button.addEventListener('click', function () {
+					const userEmail = normalizeEmail(button.dataset.userEmail);
+					const action = button.dataset.userAction;
+					if (!userEmail) return;
+
+					const users = loadUsers();
+					const userToManage = users.find(function (u) { return u.email === userEmail; });
+					if (!userToManage) return;
+
+					if (userToManage.role === 'admin') {
+						alert('La cuenta del administrador no puede eliminarse ni recuperarse desde este panel.');
+						return;
+					}
+
+					if (action === 'delete') {
+						const confirmar = window.confirm('¿Seguro que quieres eliminar esta cuenta? Se marcará como inactiva y podrá recuperarse más adelante.');
+						if (!confirmar) return;
+						userToManage.deleted = true;
+						userToManage.deletedAt = new Date().toISOString();
+						saveUsers(users);
+						renderPerfil();
+						alert('Cuenta eliminada correctamente.');
+					}
+
+					if (action === 'restore') {
+						userToManage.deleted = false;
+						userToManage.deletedAt = null;
+						saveUsers(users);
+						renderPerfil();
+						alert('Cuenta recuperada correctamente.');
+					}
+				});
+			});
 		}
 
 		renderPerfil();

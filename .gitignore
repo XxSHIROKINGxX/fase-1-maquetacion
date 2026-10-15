@@ -14,3 +14,11 @@ Thumbs.db
 # Ignore local IDE files
 *.suo
 *.ntvs*
+# CodeIgniter 4 - Seguridad
+/.env
+/.env.*
+!/.env.example
+/vendor/
+/writable/
+/public/uploads/
+/public/comprobantes/
